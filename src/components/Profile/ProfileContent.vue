@@ -1,7 +1,7 @@
 <template>
   <div class="profile-content">
     <div class="add-building-btn">
-      <button>Add building</button>
+      <button @click="showModal = true">Add building</button>
     </div>
     <div class="user-content">
       <div class="user-info">
@@ -19,17 +19,20 @@
             <p>5</p>
         </div>
       </div>
-      <BuildingsListVue />
+      <BuildingsList />
+      <AddBuildingModal v-if="showModal" @closeAddModal="showModal = false"/>
     </div>
   </div>
 </template>
 
 <script>
-import BuildingsListVue from './BuildingsList.vue';
+import BuildingsList from './BuildingsList.vue';
+import AddBuildingModal from './AddBuildingModal.vue';
 
 export default {
   components: {
-    BuildingsListVue,
+    BuildingsList,
+    AddBuildingModal
   },
   name: 'ProfileContentComponent',
   data() {
@@ -37,6 +40,7 @@ export default {
       username: this.$store.getters.getUsername,
       phone: '',
       numberOfBuildings: '',
+      showModal: false,
     }
   },
 };

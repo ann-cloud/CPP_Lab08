@@ -7,7 +7,7 @@
         </div>
         <div class="modal-body">
             <h1 style="color: white;">Edit {{ `Building ${buildingNumber}` }}</h1>
-            <h2 style="text-align: left; "><strong>Address: {{address}}</strong></h2>
+            <h2 style="text-align: left; "><strong>Address: <input type="text" id="address" name="address" v-model="address" placeholder="Enter building address" required></strong></h2>
             <div class="add-apartment-btn">
                 <button @click="addApartment">Add apartment</button>
             </div>
@@ -25,7 +25,7 @@
                                 <div class="floor">
                                     <h3>Floor {{ floorIndex + 1 }}</h3>
                                     <div class="add-room-btn">
-                                        <button @click="showRoomModal = true">Add room</button>
+                                        <button @click="showAddRoomModal = true">Add room</button>
                                         <button style="background-color: #273043; margin-left: 10px;" @click="deleteFloor">Delete floor</button>
                                     </div>
                                     <div class="rooms">
@@ -34,7 +34,7 @@
                                             <div class="room">
                                                 <h4>Room {{ roomIndex + 1 }}: Square: 20, doors: {{ room.doors }}, windows: {{ room.windows }}, normative: ordinary</h4>
                                                 <div class="action-buttons">
-                                                    <button @click="editRoom">
+                                                    <button @click="showEditRoomModal = true">
                                                         <img src="@/assets/img/edit.png" alt="Edit room">
                                                     </button>
                                                     <button @click="deleteRoom">
@@ -50,22 +50,25 @@
                     </div>
                 </div>
             </div>
-            <button class="save-button" @click="confirmDelete">Save</button>
+            <button class="save-button" @click="closeModal">Save</button>
         </div>
       </div>
     </div>
     <ConfirmDeleteModal v-if="showDeleteModal" :type="deletiontype" @closeConfirmDeleteModal="showDeleteModal = false"/>
-    <RoomModal v-if="showRoomModal" @closeRoomModal="showRoomModal = false" @roomAdded="addRoom"/>
+    <AddRoomModal v-if="showAddRoomModal" @closeAddRoomModal="showAddRoomModal = false"/>
+    <EditRoomModal v-if="showEditRoomModal" @closeEditRoomModal="showEditRoomModal = false"/>
   </template>
   
   <script>
 import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
-import RoomModal from './RoomModal.vue';
+import AddRoomModal from './AddRoomModal.vue';
+import EditRoomModal from './EditRoomModal.vue';
 
   export default {
     components: {
         ConfirmDeleteModal,
-        RoomModal
+        AddRoomModal,
+        EditRoomModal
   },
     name: 'EditBuildingComponent',
     props: {
@@ -76,10 +79,13 @@ import RoomModal from './RoomModal.vue';
     },
     data() {
       return {
-        address: "some address",
-        showRoomModal: false,
+        address: "",
+        showAddRoomModal: false,
         showDeleteModal: false,
+        showEditRoomModal: false,
         deletiontype: "",
+        currentApartmentIdx: "",
+        currentFloorIdx: "",
         buildingApartments: [
         {
             address: "ap1Address",
@@ -155,7 +161,7 @@ import RoomModal from './RoomModal.vue';
       },
       addRoom()
       {
-        this.showRoomModal = true;
+
       },
       async editRoom()
       {
