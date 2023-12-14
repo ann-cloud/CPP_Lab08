@@ -15,15 +15,15 @@ const routes = [
     { 
         path: '/profile', 
         component: ProfileContent,
-        // meta: { requiresAuth: true },
-        // beforeEnter: (to, from, next) => {
-        //   if (store.getters.isAuthenticated) {
-        //     next(); 
-        //   } else {
-        //     alert('You need to log in first 🤓');
-        //     next('/sign-in'); 
-        //   }
-        // },
+        meta: { requiresAuth: true },
+        beforeEnter: (to, from, next) => {
+          if (store.getters.isAuthenticated) {
+            next(); 
+          } else {
+            alert('You need to log in first 🤓');
+            next('/sign-in'); 
+          }
+        },
      },
 ];
 

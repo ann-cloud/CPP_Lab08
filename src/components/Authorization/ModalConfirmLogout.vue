@@ -33,7 +33,6 @@ export default {
       try {    
         const userId = this.$store.getters.getUserId;
         const response = await axios.delete(`http://localhost:8080/api/auth/refreshtoken/${userId}`);
-        axios.defaults.headers.common['Authorization'] = "";
 
         localStorage.removeItem('accessToken');
         this.$store.dispatch('authenticate', {
@@ -48,7 +47,7 @@ export default {
         this.closeModal();
       } catch (error) {
         alert('Logout failed!');
-        console.error('Error logging out:', error);
+        console.error('Error logging out:', error.response.data.message);
       }
     }
   }

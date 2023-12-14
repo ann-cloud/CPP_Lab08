@@ -65,23 +65,24 @@ export default {
         
         const userId = response.data.id;
         const username = response.data.username;
+        const email = response.data.email;
         const accessToken = response.data.accessToken;
 
         this.$store.dispatch('authenticate', {
           authenticated: true,
           userId,
           username,
+          email,
           accessToken,
         });
 
         localStorage.setItem('accessToken', accessToken)
-        axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 
         console.log('Sign-in successful:', response.data);
         this.$router.push('/')
       } catch (error) {
         alert('Sign in failed!');
-        console.error('Error signing in:', error);
+        console.error('Error signing ip:', error.response.data.message);
         this.$router.push('/sign-up');
       }
     },

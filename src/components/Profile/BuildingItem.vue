@@ -3,7 +3,7 @@
       <div class="building-info">
         <p>
             <strong>{{ `Building ${buildingNumber}:` }}</strong>
-            Floors: {{ floors }}, Rooms: {{ rooms }}
+            Floors: {{ floors.length }}, Rooms: {{ rooms.length }}
         </p>
       </div>
       <div class="action-buttons">
@@ -40,11 +40,11 @@
         required: true,
       },
       floors: {
-        type: Number,
+        type: Array,
         required: true,
       },
       rooms: {
-        type: Number,
+        type: Array,
         required: true,
       },
     },

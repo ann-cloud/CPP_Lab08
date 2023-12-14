@@ -8,13 +8,15 @@
         <div class="modal-body">
             <h1 style="color: white;">Add Building</h1>
             <h2 style="text-align: left; "><strong>Address: <input type="text" id="address" name="address" v-model="address" placeholder="Enter building address" required></strong></h2>
+            <h2 style="text-align: left; "><strong>Coordinate X: <input type="text" id="coordinateX" name="coordinateX" v-model="coordinateX" placeholder="Enter building coordinate X" required></strong></h2>
+            <h2 style="text-align: left; "><strong>Coordinate Y: <input type="text" id="coordinateY" name="coordinateY" v-model="coordinateY" placeholder="Enter building coordinate Y" required></strong></h2>
             <div class="add-apartment-btn">
                 <button @click="addApartment">Add apartment</button>
             </div>
             <div class="apartments">
                 <div v-for="(apartment, apartmentIndex) in buildingApartments" :key="apartmentIndex">
                     <div class="apartment">
-                        <h2>Apartment {{ apartmentIndex + 1 }} <strong style="color: white;"><hr>apAddress</strong></h2>
+                        <h2>Apartment {{ apartmentIndex + 1 }}</h2>
                         <div class="add-floor-btn">
                             <button @click="addFloor(apartmentIndex)">Add floor</button>
                         </div>
@@ -50,7 +52,7 @@
                     </div>
                 </div>
             </div>
-            <button class="save-button" @click="closeModal">Save</button>
+            <button class="save-button" @click="handleSaveBuilding">Save</button>
         </div>
       </div>
     </div>
@@ -63,6 +65,7 @@
 import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
 import AddRoomModal from './AddRoomModal.vue';
 import EditRoomModal from './EditRoomModal.vue';
+import axios from 'axios';
 
   export default {
     components: {
@@ -74,23 +77,15 @@ import EditRoomModal from './EditRoomModal.vue';
     data() {
       return {
         address: "",
+        coordinateX: "",
+        coordinateY: "",
         showAddRoomModal: false,
         showDeleteModal: false,
         showEditRoomModal: false,
         deletiontype: "",
         currentApartmentIdx: "",
         currentFloorIdx: "",
-        buildingApartments: [
-          {
-            address: "someAddress",
-            floors: [
-              {
-                rooms: [
-                ],
-              },
-            ],
-          },
-        ],
+        buildingApartments: [],
         showModal: true,
       }
     },
@@ -100,10 +95,29 @@ import EditRoomModal from './EditRoomModal.vue';
         this.showModal = false;
         this.$emit('closeAddModal');
       },
+      async handleSaveBuilding()
+      {
+        try {    
+          console.log(localStorage.getItem('accessToken'))
+          const userId = this.$store.getters.getUserId;
+          axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
+          const response = await axios.post('http://localhost:8080/api/buildings', {
+            user_id: userId, 
+            address: this.address,
+            coordinatex: this.coordinateX,
+            coordinatey: this.coordinateY,
+          });
+
+          console.log(response.data);
+
+        } catch (error) {
+          alert('Building save failed!');
+          console.error('Error saving building:', error.response.data.message);
+        }
+      },
       addApartment()
       {
         const newApartment = {
-            address: "ap3Address",
             floors: [
               {
                 rooms: [
@@ -147,6 +161,14 @@ import EditRoomModal from './EditRoomModal.vue';
 
   
 <style scoped>
+
+
+input {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
 
 .save-button {
     color: white;

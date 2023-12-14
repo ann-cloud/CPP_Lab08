@@ -8,15 +8,11 @@
         <h2>Information about user</h2>
         <div class="info-group">
             <p><strong>Email:</strong></p> 
-            <p>{{username}}</p> 
-        </div>
-        <div class="info-group">
-            <p><strong>Phone number:</strong></p> 
-            <p>123456789</p> 
+            <p>{{ email }}</p> 
         </div>
         <div class="info-group">
             <p><strong>Number of buildings:</strong></p> 
-            <p>5</p>
+            <p>{{ numberOfBuildings }}</p>
         </div>
       </div>
       <BuildingsList />
@@ -28,6 +24,7 @@
 <script>
 import BuildingsList from './BuildingsList.vue';
 import AddBuildingModal from './AddBuildingModal.vue';
+import axios from 'axios';
 
 export default {
   components: {
@@ -37,12 +34,31 @@ export default {
   name: 'ProfileContentComponent',
   data() {
     return {
-      username: this.$store.getters.getUsername,
-      phone: '',
+      email: this.$store.getters.getEmail,
       numberOfBuildings: '',
       showModal: false,
     }
   },
+  methods: {
+    async getNumberOfBuildingsOfUser() {
+      try {    
+        const userId = this.$store.getters.getUserId;
+
+        axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
+        const response = await axios.get('http://localhost:8080/api/auth/users');
+
+        const user = response.data.find(user => user.id === userId);
+        this.numberOfBuildings = user.buildings.length;
+
+      } catch (error) {
+        alert('Building count fetch failed!');
+        console.error('Error fetching buildings:', error.response.data.message);
+      }
+    }
+  },
+  created() {
+    this.getNumberOfBuildingsOfUser();
+  }
 };
 </script>
 

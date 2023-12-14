@@ -22,14 +22,6 @@
           </div>
 
           <div class="form-group">
-            <label for="phone">Phone</label>
-            <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" v-model="phone" @input="validatePhone" required>
-          </div>
-          <span v-if="phone && !isValidPhone" style="color: red; font-size: 14px; margin: 10px;">
-              Please enter a valid phone number.
-          </span>
-
-          <div class="form-group">
             <label for="password">Password</label>
             <input type="password" id="password" name="password" placeholder="Enter your password" v-model="password" required>
           </div>
@@ -73,19 +65,10 @@ export default {
       this.showModal = false;
       this.$router.push('/');
     },
-    validatePhone() {
-      const phoneRegex = /^\d{10}$/;
-      this.isValidPhone = phoneRegex.test(this.phone);
-    },
     async handleSubmit()
     {
       if (this.password !== this.passwordConfirm) {
         alert('Passwords do not match!');
-        return;
-      }
-      if (!this.isValidPhone)
-      {
-        alert('Enter a valid phone number!');
         return;
       }
 
@@ -100,7 +83,7 @@ export default {
         this.$router.push('/sign-in');
       } catch (error) {
         alert('Sign up failed!');
-        console.error('Error signing up:', error);
+        console.error('Error signing up:', error.response.data.message);
       }
     }
   }

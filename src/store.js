@@ -6,6 +6,7 @@ const store = createStore({
         authenticated: false,
         userId: "",
         username: "",
+        email: "",
         accessToken: ""
       };
     },
@@ -19,15 +20,20 @@ const store = createStore({
       setUsername(state, value) {
         state.username = value;
       },
+      setEmail(state, value)
+      {
+        state.email = value;
+      },
       setAccessToken(state, value) {
         state.accessToken = value;
       }
     },
     actions: {
-        authenticate({ commit }, { authenticated, userId, username, accessToken }) {
+        authenticate({ commit }, { authenticated, userId, username, email, accessToken }) {
           commit('setAuthenticated', authenticated);
           commit('setUserId', userId);
           commit('setUsername', username);
+          commit('setEmail', email);
           commit('setAccessToken', accessToken);
         },
       },
@@ -35,6 +41,7 @@ const store = createStore({
       isAuthenticated: (state) => state.authenticated,
       getUserId: (state) => state.userId,
       getUsername: (state) => state.username,
+      getEmail: (state) => state.email,
       getAccessToken: (state) => state.accessToken,
     },
   });  

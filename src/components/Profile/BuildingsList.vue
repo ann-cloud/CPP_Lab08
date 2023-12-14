@@ -3,15 +3,16 @@
     <BuildingItem
       v-for="building in buildings"
       :key="building.id"
-      :buildingNumber="building.number"
-      :floors="building.floors"
-      :rooms="building.rooms"
+      :buildingNumber="building.id"
+      :floorsCount="building.apartments.floors"
+      :roomsCount="building.apartments.floors.rooms"
     />
   </div>
 </template>
 
 <script>
 import BuildingItem from "./BuildingItem.vue";
+import axios from 'axios';
 
 export default {
   components: {
@@ -20,22 +21,35 @@ export default {
   name: 'BuildingListComponent',
   data() {
     return {
-      buildings: [
-        { id: 1, number: 1, floors: 3, rooms: 4 },
-        { id: 2, number: 5, floors: 7, rooms: 20 },
-        { id: 3, number: 2, floors: 2, rooms: 5 },
-        { id: 4, number: 4, floors: 1, rooms: 3 },
-        { id: 5, number: 3, floors: 2, rooms: 5 },
-        { id: 6, number: 6, floors: 1, rooms: 2 },
-      ],
+      buildings: [],
+      floorsCount: '',
+      roomsCount: ''
     };
   },
   methods: {
     async getBuildingsOfUser()
     {
-      
+      try {    
+        const userId = this.$store.getters.getUserId;
+        axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
+        const response = await axios.get('http://localhost:8080/api/auth/users');
+
+        const user = response.data.find(user => user.id === userId);
+
+        this.buildings = user.buildings;
+        console.log(this.buildings);
+
+        
+
+      } catch (error) {
+        alert('Building fetch failed!');
+        console.error('Error fetching buildings:', error.response.data.message);
+      }
     }
   },
+  created() {
+    this.getBuildingsOfUser();
+  }
 };
 </script>
 

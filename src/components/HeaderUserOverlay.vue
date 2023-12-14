@@ -12,9 +12,9 @@
     <router-link to="/profile">
       <div class="overlay-row" v-if="authenticated && currentRoute !== '/profile'">Profile</div>
     </router-link>
-    <router-link to="/simulation">
+    <!-- <router-link to="/simulation">
       <div class="overlay-row" v-if="authenticated && currentRoute !== '/simulation'">Simulation</div>
-    </router-link>
+    </router-link> -->
     <div class="overlay-row" v-if="authenticated" id="logout" @click="handleButtonClick">Log out</div>
     <ModalConfirmLogout v-if="showModal" @logoutConfirmed="closeOverlay"/>
   </div>
