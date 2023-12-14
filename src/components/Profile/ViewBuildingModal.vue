@@ -1,15 +1,15 @@
 <template>
   <div class="modal" v-if="isVisible">
     <div class="modal-background" @click="closeModal"></div>
-    <div class="modal-content">
+    <div class="modal-content" >
       <div class="modal-header">
         <div class="modal-header">
-        <button class="close-button" @click="closeModal">&times;</button>
-      </div>
+          <button class="close-button" @click="closeModal">&times;</button>
+        </div>
       </div>
       <div class="modal-body">
-        <h1 style="text-align: center;"><strong>{{ `Building ${buildingNumber}` }}</strong></h1>
-        <h3><strong>Address: {{address}}</strong></h3>
+        <h1 style="text-align: center;"><strong>{{ `Building ${buildingId}` }}</strong></h1>
+        <h3><strong>Address: {{ address }}</strong></h3>
         <div class="building-content">
           <div class="building-info">
             <!-- Iterate through apartments -->
@@ -36,94 +36,71 @@
               </div>
             </div>
           </div>
-          <div class="building-scheme">
-            <img src="@/assets/img/building.png" alt="Building">
-          </div>
+          <BuildingBuildView style="width: 100vh;" :buildingApartments="buildingApartments"></BuildingBuildView>
         </div>
       </div>
     </div>
   </div>
 </template>
   
-  <script>
-  import axios from 'axios';
+<script>
+import axios from 'axios';
+import BuildingBuildView from '../Builds/BuildingBuildView';
 
-  export default {
-    props: {
-      buildingNumber: {
-        type: Number,
-        required: true,
-      },
+export default {
+  components: {
+    BuildingBuildView
+  },
+  props: {
+    buildingId: {
+      type: Number,
+      required: true,
     },
-    data() {
-      return {
-        address: "some address",
-        isVisible: true,
-        buildingApartments: [
+  },
+  data() {
+    return {
+      address: "some address",
+      isVisible: true,
+      buildingApartments: []
+    };
+  },
+  methods: {
+    closeModal() {
+      this.isVisible = false;
+      this.$emit('closeBuildingModal');
+    },
+    async fetchData() {
+      try {
+        const response = await axios.get("http://localhost:8080/api/data/buildings/getBuildingById/" + this.buildingId,
           {
-            floors: [
-              {
-                rooms: [
-                  { doors: 2, windows: 4, controllers: 4 },
-                  { doors: 3, windows: 4, controllers: 5 },
-                ],
-              },
-              {
-                rooms: [
-                  { doors: 2, windows: 4, controllers: 4 },
-                  { doors: 3, windows: 4, controllers: 5 },
-                ],
-              },
-            ],
-          },
-          {
-            floors: [
-              {
-                rooms: [
-                  { doors: 2, windows: 4, controllers: 4 },
-                  { doors: 3, windows: 4, controllers: 5 },
-                ],
-              },
-              {
-                rooms: [
-                  { doors: 2, windows: 4, controllers: 4 },
-                  { doors: 3, windows: 4, controllers: 5 },
-                ],
-              },
-            ],
-          },
-        ]
-      };
+            headers:
+            {
+              "Authorization": `Bearer ${this.$store.getters.getAccessToken}`
+            }
+          });
+
+        console.log('Fetching building data successful:', response);
+
+        this.address = response.data.address;
+        this.buildingApartments = response.data.apartments;
+
+      } catch (error) {
+        alert('Fetching building data failed');
+        console.error('Error fetching building data:', error);
+
+        this.$router.push('/profile');
+      }
     },
-    methods: {
-      closeModal() {
-        this.isVisible = false;
-        this.$emit('closeBuildingModal');
-      },
-      async fetchData() {
-        try {
-          const response = await axios.get(`http://localhost:8080/api/buildings/${this.buildingNumber}`);
-          
-          this.address = response.data.coordinates;
-          console.log('Fetching building data successful:', response.data);
-        } catch (error) {
-          alert('Fetching building data failed');
-          console.error('Error fetching building data:', error);
-          console.log(axios.defaults.headers.common['Authorization']);
-          this.$router.push('/profile');
-          }
-      },
-    },
-    mounted() {
-      //this.fetchData();
-    },
-  };
-  </script>
+  },
+  mounted() {
+    this.fetchData();
+  },
+};
+</script>
   
-  <style scoped>
+<style scoped>
 
-.building-info
-{
+.building-info {
   max-height: 400px;
   overflow-y: auto;
   background-color: #9197AE;
@@ -134,22 +111,20 @@
   margin-right: 20px;
 }
 
-ul
-{
+ul {
   text-align: left;
 }
-.building-content
-{
+
+.building-content {
   display: flex;
 }
 
-img, .building-scheme
-{
+img,
+.building-scheme {
   height: 400px;
 }
 
-.info-group
-{
+.info-group {
   display: flex;
   flex-wrap: nowrap;
   flex-direction: row;
@@ -157,6 +132,7 @@ img, .building-scheme
   justify-content: space-between;
   align-items: center;
 }
+
 .modal {
   position: fixed;
   top: 0;
@@ -192,7 +168,8 @@ img, .building-scheme
 }
 
 .close-button {
-  font-size: 24px; /* Adjust the font size as needed */
+  font-size: 24px;
+  /* Adjust the font size as needed */
   cursor: pointer;
   border: none;
   background: none;
@@ -204,6 +181,5 @@ img, .building-scheme
   flex-direction: column;
   text-align: left;
 }
-
-  </style>
+</style>
   

@@ -12,33 +12,44 @@ import ProfileContent from '@/./components/Profile/ProfileContent.vue';
 const routes = [
   {
     path: '/', component: HomeContent,
-    beforeEnter: (to, from, next) => {
+    beforeEnter: () => {
       if (store.getters.isAuthenticated) {
-        let accessToken = store.getters.getAccessToken;
+        let userId = store.getters.getUserId;
 
-        console.log(accessToken);
+        if (userId !== undefined && !isNaN(userId) && userId != null) {
+          const promise = axios.get('http://localhost:8080/api/auth/users/' + userId);
 
-        if (accessToken != null) {
-          const response = axios.get('http://localhost:8080/api/auth/getUserByRefreshToken', {
-            token: accessToken,
-          });
+          // using .then, create a new promise which extracts the data
+          promise.then((response) => {
+            if (response.data == null || response.data === undefined) {
+              store.dispatch('authenticate', {
+                authenticated: false,
+                userId: undefined,
+                username: undefined,
+                email: undefined,
+              });
+            }
+            else {
+              const userId = response.data.id;
+              const username = response.data.username;
+              const email = response.data.email;
 
-          console.log(response);
-
-          if (response.data != null) {
-            const userId = response.data.id;
-            const username = response.data.username;
-            const email = response.data.email;
-
-            this.$store.dispatch('authenticate', {
-              authenticated: true,
-              userId,
-              username,
-              email,
-            });
-          }
+              store.dispatch('authenticate', {
+                authenticated: true,
+                userId: userId,
+                username: username,
+                email: email,
+              }).catch(() => {
+                store.dispatch('authenticate', {
+                  authenticated: false,
+                  userId: undefined,
+                  username: undefined,
+                  email: undefined,
+                });
+              })
+            }
+          })
         }
-        next();
       }
     }
   },
@@ -49,11 +60,54 @@ const routes = [
     component: ProfileContent,
     meta: { requiresAuth: true },
     beforeEnter: (to, from, next) => {
-      if (store.getters.isAuthenticated) {
-        next();
-      } else {
-        alert('You need to log in first 🤓');
-        next('/sign-in');
+      try {
+        if (store.getters.isAuthenticated) {
+          let userId = store.getters.getUserId;
+
+          if (userId !== undefined && !isNaN(userId) && userId != null) {
+            const promise = axios.get('http://localhost:8080/api/auth/users/' + userId);
+
+            promise.then((response) => {
+              if (response.data == null || response.data === undefined) {
+                store.dispatch('authenticate', {
+                  authenticated: false,
+                  userId: undefined,
+                  username: undefined,
+                  email: undefined,
+                });
+
+                next(from);
+              }
+              else {
+                const userId = response.data.id;
+                const username = response.data.username;
+                const email = response.data.email;
+
+                store.dispatch('authenticate', {
+                  authenticated: true,
+                  userId: userId,
+                  username: username,
+                  email: email,
+                }).catch(() => {
+                  store.dispatch('authenticate', {
+                    authenticated: false,
+                    userId: undefined,
+                    username: undefined,
+                    email: undefined,
+                  });
+                })
+
+                next();
+              }
+            })
+          }
+
+        } else {
+          alert('You need to log in first 🤓');
+          next('/sign-in');
+        }
+      } catch (error) {
+        console.log(error);
       }
     },
   },

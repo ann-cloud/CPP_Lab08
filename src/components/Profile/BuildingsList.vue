@@ -1,11 +1,7 @@
 <template>
   <div class="buildings-list">
-    <BuildingItem
-      v-for="building in buildings"
-      :key="building.id"
-      :buildingNumber="building.id"
-      :floorsCount="building.apartments.reduce((sum, apartment) => sum + apartment.floors.length, 0)"
-    />
+    <BuildingItem v-for="building in buildings" :key="building.id"
+      :buildingId="building.id" :apartmentsCount="building.apartments.length"/>
   </div>
 </template>
 
@@ -24,16 +20,18 @@ export default {
     };
   },
   methods: {
-    async getBuildingsOfUser()
-    {
-      try {    
+    async getBuildingsOfUser() {
+      try {
         const userId = this.$store.getters.getUserId;
         axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
-        const response = await axios.get('http://localhost:8080/api/auth/users');
 
-        const user = response.data.find(user => user.id === userId);
+        if (userId !== undefined && !isNaN(userId) && userId != null) {
+          const promise = axios.get('http://localhost:8080/api/auth/users/' + userId);
 
-        this.buildings = user.buildings;
+          promise.then((response) => {
+            this.buildings = response.data.buildings;
+          })
+        }
       } catch (error) {
         alert('Building fetch failed!');
         console.error('Error fetching buildings:', error.response.data.message);
@@ -58,6 +56,4 @@ export default {
   overflow-y: auto;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
-
-
 </style>

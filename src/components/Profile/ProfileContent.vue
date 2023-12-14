@@ -43,13 +43,16 @@ export default {
     async getNumberOfBuildingsOfUser() {
       try {    
         const userId = this.$store.getters.getUserId;
+        // axios.defaults.headers.common['Authorization'] = `Bearer ${this.$store.getters.getAccessToken}`;
 
-        axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
-        const response = await axios.get('http://localhost:8080/api/auth/users');
+        if (userId !== undefined && !isNaN(userId) && userId != null) {
+          const promise = axios.get('http://localhost:8080/api/auth/users/' + userId);
 
-        const user = response.data.find(user => user.id === userId);
-        this.numberOfBuildings = user.buildings.length;
-
+          promise.then((response) => {
+            this.buildings = response.data.buildings;
+            this.numberOfBuildings = this.buildings.length;
+          })
+        }
       } catch (error) {
         alert('Building count fetch failed!');
         console.error('Error fetching buildings:', error.response.data.message);

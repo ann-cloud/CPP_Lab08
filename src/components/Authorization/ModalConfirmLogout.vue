@@ -16,7 +16,6 @@
 </template>
 
 <script>
-import store from '@/store';
 import axios from 'axios';
 
 export default {
@@ -32,23 +31,28 @@ export default {
     },
     async confirmLogout() {
       try {
+        localStorage.removeItem("userId");
+        localStorage.removeItem("accessToken");
+
         const userId = this.$store.getters.getUserId;
         const response = await axios.delete(`http://localhost:8080/api/auth/refreshtoken/${userId}`);
 
         this.$store.dispatch('authenticate', {
           authenticated: false,
-          userId: "",
-          username: "",
-          accessToken: "",
+          userId: undefined,
+          username: undefined,
+          accessToken: undefined,
         });
 
         console.log('Logout successful:', response.data);
         this.$router.push('/sign-in');
         this.closeModal();
       } catch (error) {
-        if (store.getters.getAccessToken == null) {
-          alert('Logout failed!');
-          console.error('Error logging out:', error.response.data.message);
+        if (this.$store.getters.getAccessToken == null || this.$store.getters.getAccessToken === undefined) {
+          alert('Logout failed, so performed clean logout.');
+          if (error.response !== undefined)
+            console.error('Error logging out:', error.response.data.message);
+          return;
         }
         else {
           console.log('Logout successful:');

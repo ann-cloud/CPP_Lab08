@@ -2,8 +2,8 @@
     <div class="building-item">
       <div class="building-info">
         <p>
-            <strong>{{ `Building ${buildingNumber}:` }}</strong>
-            Floors: {{ floorsCount }}
+            <strong>{{ `Building ${buildingId}:` }}</strong>
+            Apartments Count: {{ apartmentsCount }}
         </p>
       </div>
       <div class="action-buttons">
@@ -18,9 +18,9 @@
         </button>
       </div>
     </div>
-    <ViewBuildingModal v-if="showBuildingModal" :buildingNumber="buildingNumber" @closeBuildingModal="showBuildingModal = false"/>
+    <ViewBuildingModal v-if="showBuildingModal" :buildingId="buildingId" @closeBuildingModal="showBuildingModal = false"/>
     <ConfirmDeleteModal v-if="showDeleteModal" :type="'building'" @closeConfirmDeleteModal="showDeleteModal = false"/>
-    <EditBuildingModal v-if="showEditModal" :buildingNumber="buildingNumber" @closeEditModal="showEditModal = false"/>
+    <EditBuildingModal v-if="showEditModal" :buildingId="buildingId" @closeEditModal="showEditModal = false"/>
   </template>
   
   <script>
@@ -35,11 +35,11 @@
       EditBuildingModal
     },
     props: {
-      buildingNumber: {
+      buildingId: {
         type: Number,
         required: true,
       },
-      floorsCount: {
+      apartmentsCount: {
         type: Number,
         required: true,
       },
