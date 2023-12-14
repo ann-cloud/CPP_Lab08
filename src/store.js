@@ -25,6 +25,7 @@ const store = createStore({
         state.email = value;
       },
       setAccessToken(state, value) {
+        localStorage.setItem("accessToken", value);
         state.accessToken = value;
       }
     },
@@ -38,11 +39,26 @@ const store = createStore({
         },
       },
     getters: {
-      isAuthenticated: (state) => state.authenticated,
+      isAuthenticated: (state) => {
+        let tmpToken = localStorage.getItem("accessToken");
+        console.log(tmpToken );
+        if(tmpToken != null && !state.authenticated)
+        {
+          state.accessToken = tmpToken;
+          state.authenticated = true;
+        }
+        return state.authenticated;
+      },
       getUserId: (state) => state.userId,
       getUsername: (state) => state.username,
       getEmail: (state) => state.email,
-      getAccessToken: (state) => state.accessToken,
+      getAccessToken: (state) => {
+        let tmpToken = localStorage.getItem("accessToken");
+        if(tmpToken != null)
+          state.accessToken = tmpToken;
+        return state.accessToken;
+      }
+       
     },
   });  
 

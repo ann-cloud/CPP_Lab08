@@ -4,8 +4,8 @@
     <div class="modal-content">
       <div class="modal-header">
         <div class="modal-header">
-        <button class="close-button" @click="closeModal">&times;</button>
-      </div>
+          <button class="close-button" @click="closeModal">&times;</button>
+        </div>
       </div>
       <div class="modal-body">
         <h1 style="color: #273043;">Are you sure you want to log out?</h1>
@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import store from '@/store';
 import axios from 'axios';
 
 export default {
@@ -30,24 +31,30 @@ export default {
       this.$emit('logoutConfirmed');
     },
     async confirmLogout() {
-      try {    
+      try {
         const userId = this.$store.getters.getUserId;
         const response = await axios.delete(`http://localhost:8080/api/auth/refreshtoken/${userId}`);
 
-        localStorage.removeItem('accessToken');
         this.$store.dispatch('authenticate', {
-            authenticated: false,
-            userId: "",
-            username: "",
-            accessToken: "",
-          });
+          authenticated: false,
+          userId: "",
+          username: "",
+          accessToken: "",
+        });
 
         console.log('Logout successful:', response.data);
         this.$router.push('/sign-in');
         this.closeModal();
       } catch (error) {
-        alert('Logout failed!');
-        console.error('Error logging out:', error.response.data.message);
+        if (store.getters.getAccessToken == null) {
+          alert('Logout failed!');
+          console.error('Error logging out:', error.response.data.message);
+        }
+        else {
+          console.log('Logout successful:');
+          this.$router.push('/sign-in');
+          this.closeModal();
+        }
       }
     }
   }
@@ -88,7 +95,8 @@ export default {
 }
 
 .close-button {
-  font-size: 24px; /* Adjust the font size as needed */
+  font-size: 24px;
+  /* Adjust the font size as needed */
   cursor: pointer;
   border: none;
   background: none;
@@ -116,5 +124,4 @@ export default {
 .logout-button:hover {
   background-color: #45a049;
 }
-
 </style>
