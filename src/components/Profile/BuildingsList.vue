@@ -4,8 +4,7 @@
       v-for="building in buildings"
       :key="building.id"
       :buildingNumber="building.id"
-      :floorsCount="building.apartments.floors"
-      :roomsCount="building.apartments.floors.rooms"
+      :floorsCount="building.apartments.reduce((sum, apartment) => sum + apartment.floors.length, 0)"
     />
   </div>
 </template>
@@ -22,8 +21,6 @@ export default {
   data() {
     return {
       buildings: [],
-      floorsCount: '',
-      roomsCount: ''
     };
   },
   methods: {
@@ -37,10 +34,6 @@ export default {
         const user = response.data.find(user => user.id === userId);
 
         this.buildings = user.buildings;
-        console.log(this.buildings);
-
-        
-
       } catch (error) {
         alert('Building fetch failed!');
         console.error('Error fetching buildings:', error.response.data.message);
