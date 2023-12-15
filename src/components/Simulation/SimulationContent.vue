@@ -15,6 +15,7 @@
       <AlertPopup />
     </div>
   </div>
+  <SimulationInfo></SimulationInfo>
 </template>
 
 <script>
@@ -24,6 +25,7 @@ import axios from 'axios';
 import markerIcon from '@/assets/img/location.png';
 import SimulationInfo from './SimulationInfo.vue';
 import AlertPopup from './AlertPopup.vue';
+import io from 'socket.io-client';
 
 export default {
   name: "SimulationContent",
@@ -45,7 +47,7 @@ export default {
         const userId = this.$store.getters.getUserId;
 
         if (userId !== undefined && !isNaN(userId) && userId != null) {
-          const promise = axios.get('http://localhost:8080/api/auth/users/' + userId,
+          const promise = axios.get('http://localhost:8080/api/data/buildings/getBuildingsByUserId/' + userId,
             {
               headers: {
                 "Authorization": `Bearer ${this.$store.getters.getAccessToken}`
@@ -53,7 +55,7 @@ export default {
             });
 
           promise.then((response) => {
-            this.buildings = response.data.buildings;
+            this.buildings = response.data;
             this.updateMap();
           });
         }
@@ -175,7 +177,7 @@ export default {
       });
 
       this.buildings.forEach(building => {
-        L.marker([building.coordinateY, building.coordinateX], { icon: locationIcon })
+        L.marker([building.coordinateX, building.coordinateY], { icon: locationIcon })
           .addTo(this.map)
           .bindPopup(`<b>Building ${building.id}</b><br>${building.address}`);
       });
