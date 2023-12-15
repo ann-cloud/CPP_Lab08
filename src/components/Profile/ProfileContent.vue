@@ -1,7 +1,6 @@
 <template>
   <div class="profile-content">
     <div class="add-building-btn">
-      <button @click="showModal = true">Add building</button>
     </div>
     <div class="user-content">
       <div class="user-info">
@@ -16,20 +15,17 @@
         </div>
       </div>
       <BuildingsList />
-      <AddBuildingModal v-if="showModal" @closeAddModal="showModal = false"/>
     </div>
   </div>
 </template>
 
 <script>
 import BuildingsList from './BuildingsList.vue';
-import AddBuildingModal from './AddBuildingModal.vue';
 import axios from 'axios';
 
 export default {
   components: {
     BuildingsList,
-    AddBuildingModal
   },
   name: 'ProfileContentComponent',
   data() {
@@ -44,12 +40,20 @@ export default {
       try {    
         const userId = this.$store.getters.getUserId;
 
-        axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
-        const response = await axios.get('http://localhost:8080/api/auth/users');
+        if (userId !== undefined && !isNaN(userId) && userId != null) {
+          const promise = axios.get('http://localhost:8080/api/data/buildings/getBuildingsByUserId/' + userId,
+          {
+            headers:
+            {
+              "Authorization": `Bearer ${this.$store.getters.getAccessToken}`
+            }
+          });
 
-        const user = response.data.find(user => user.id === userId);
-        this.numberOfBuildings = user.buildings.length;
-
+          promise.then((response) => {
+            this.buildings = response.data;
+            this.numberOfBuildings = this.buildings.length;
+          })
+        }
       } catch (error) {
         alert('Building count fetch failed!');
         console.error('Error fetching buildings:', error.response.data.message);

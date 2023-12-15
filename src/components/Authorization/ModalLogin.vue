@@ -75,9 +75,7 @@ export default {
           email,
           accessToken,
         });
-
-        localStorage.setItem('accessToken', accessToken)
-
+        
         console.log('Sign-in successful:', response.data);
         this.$router.push('/')
       } catch (error) {

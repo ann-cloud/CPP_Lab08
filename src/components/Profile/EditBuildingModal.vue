@@ -72,7 +72,7 @@ import EditRoomModal from './EditRoomModal.vue';
   },
     name: 'EditBuildingComponent',
     props: {
-      buildingNumber: {
+      buildingId: {
         type: Number,
         required: true,
       },
