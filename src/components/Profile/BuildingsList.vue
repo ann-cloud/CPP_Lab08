@@ -23,15 +23,18 @@ export default {
     async getBuildingsOfUser() {
       try {
         const userId = this.$store.getters.getUserId;
-        axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('accessToken')}`;
-
-        if (userId !== undefined && !isNaN(userId) && userId != null) {
-          const promise = axios.get('http://localhost:8080/api/auth/users/' + userId);
+        const promise = axios.get('http://localhost:8080/api/data/buildings/getBuildingsByUserId/' + userId,
+          {
+            headers:
+            {
+              "Authorization": `Bearer ${this.$store.getters.getAccessToken}`
+            }
+          });
 
           promise.then((response) => {
-            this.buildings = response.data.buildings;
+            this.buildings = response.data;
+            this.numberOfBuildings = this.buildings.length;
           })
-        }
       } catch (error) {
         alert('Building fetch failed!');
         console.error('Error fetching buildings:', error.response.data.message);

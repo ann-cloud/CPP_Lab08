@@ -1,7 +1,7 @@
 <template>
   <div class="modal" v-if="isVisible">
     <div class="modal-background" @click="closeModal"></div>
-    <div class="modal-content" >
+    <div class="modal-content">
       <div class="modal-header">
         <div class="modal-header">
           <button class="close-button" @click="closeModal">&times;</button>
@@ -36,7 +36,9 @@
               </div>
             </div>
           </div>
-          <BuildingBuildView style="width: 100vh;" :buildingApartments="buildingApartments"></BuildingBuildView>
+          <div class="building-info" style="padding-top: 2vh; padding-bottom: 2vh;">
+            <BuildingBuildView style="width: 60vw;" :buildingApartments="buildingApartments"></BuildingBuildView>
+          </div>
         </div>
       </div>
     </div>
@@ -71,7 +73,7 @@ export default {
     },
     async fetchData() {
       try {
-        const response = await axios.get("http://localhost:8080/api/data/buildings/getBuildingById/" + this.buildingId,
+        const responseBuildingsyUserId = await axios.get("http://localhost:8080/api/data/buildings/getBuildingById/" + this.buildingId,
           {
             headers:
             {
@@ -79,10 +81,27 @@ export default {
             }
           });
 
-        console.log('Fetching building data successful:', response);
+        const userId = this.$store.getters.getUserId;
+        const responseApartmentsByUserId = await axios.get('http://localhost:8080/api/data/apartments/getApartmentsByUserId/' + userId,
+          {
+            headers:
+            {
+              "Authorization": `Bearer ${this.$store.getters.getAccessToken}`
+            }
+          });
 
-        this.address = response.data.address;
-        this.buildingApartments = response.data.apartments;
+        let userApartmentsIds = responseApartmentsByUserId.data.map(x => x.id);
+
+        let apartmentsSortedFloors = responseBuildingsyUserId.data.apartments.sort((a, b) => a.id - b.id).map(apartment => {
+          const sortedFloors = apartment.floors.sort((floorA, floorB) => floorB.number - floorA.number);
+          
+          let isUsersApartments = userApartmentsIds.includes(apartment.id);
+          return { ...apartment, sortedFloors, isUsersApartments };
+        });
+
+        console.log(apartmentsSortedFloors);
+
+        this.buildingApartments = apartmentsSortedFloors;
 
       } catch (error) {
         alert('Fetching building data failed');
@@ -99,7 +118,6 @@ export default {
 </script>
   
 <style scoped>
-
 .building-info {
   max-height: 400px;
   overflow-y: auto;
