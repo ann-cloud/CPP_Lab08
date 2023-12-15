@@ -1,14 +1,12 @@
 <template>
-    <div class="simulation-info">
-      <h3>Information about simulation</h3>
+      <h2 style="color: white;">Information about simulation</h2>
       <AlertMessage
         v-for="(alert, index) in alerts"
         :key="index"
+        :buildingId="alert.buildingId"
         :message="alert.message"
         :type="alert.type"
-        @close="removeAlert(index)"
       />
-    </div>
   </template>
   
   <script>
@@ -21,21 +19,25 @@
     data() {
       return {
         alerts: [
-          // Приклади повідомлень
+        { buildingId: 1, message: "some alert message", type: 'info' },
+          { buildingId: 1, message: "some alert message", type: 'error' },
+          { buildingId: 1, message: "some alert message", type: 'warning' },
+          { buildingId: 1, message: "some alert message", type: 'success' },
+          { buildingId: 1, message: "some alert message", type: 'info' },
+          { buildingId: 1, message: "some alert message", type: 'error' },
+          { buildingId: 1, message: "some alert message", type: 'warning' },
+          { buildingId: 1, message: "some alert message", type: 'success' },
+          { buildingId: 1, message: "some alert message", type: 'info' },
+          { buildingId: 1, message: "some alert message", type: 'error' },
+          { buildingId: 1, message: "some alert message", type: 'warning' },
+          { buildingId: 1, message: "some alert message", type: 'success' },
         ]
       };
     },
     methods: {
-      removeAlert(index) {
-        this.alerts.splice(index, 1);
-      }
+
     }
   };
   </script>
   
-  <style scoped>
-  .simulation-info {
-    /* Стилі для контейнера з інформацією про симуляцію */
-  }
-  </style>
   

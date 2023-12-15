@@ -8,6 +8,7 @@ import ModalLogin from '@/./components/Authorization/ModalLogin.vue';
 import ModalRegister from '@/./components/Authorization/ModalRegister.vue';
 import HomeContent from '@/./components/Home/HomeContent.vue';
 import ProfileContent from '@/./components/Profile/ProfileContent.vue';
+import SimulationContent from '@/./components/Simulation/SimulationContent.vue';
 
 const routes = [
   {
@@ -111,6 +112,7 @@ const routes = [
       }
     },
   },
+  { path: '/simulation', component: SimulationContent },
 ];
 
 const router = createRouter({
