@@ -14,7 +14,6 @@
 <script>
 import HeaderUserOverlay from './HeaderUserOverlay.vue';
 
-
 export default {
   name: 'HeaderComponent',
   components: {

@@ -2,44 +2,32 @@
     <div class="building-item">
       <div class="building-info">
         <p>
-            <strong>{{ `Building ${buildingNumber}:` }}</strong>
-            Floors: {{ floorsCount }}
+            <strong>{{ `Building ${buildingId}:` }}</strong>
+            Apartments Count: {{ apartmentsCount }}
         </p>
       </div>
       <div class="action-buttons">
         <button @click="viewBuilding">
             <img src="@/assets/img/see.png" alt="View building">
         </button>
-        <button @click="editBuilding">
-            <img src="@/assets/img/edit.png" alt="Edit building">
-        </button>
-        <button @click="deleteBuilding">
-            <img src="@/assets/img/delete.png" alt="Delete building">
-        </button>
       </div>
     </div>
-    <ViewBuildingModal v-if="showBuildingModal" :buildingNumber="buildingNumber" @closeBuildingModal="showBuildingModal = false"/>
-    <ConfirmDeleteModal v-if="showDeleteModal" :type="'building'" @closeConfirmDeleteModal="showDeleteModal = false"/>
-    <EditBuildingModal v-if="showEditModal" :buildingNumber="buildingNumber" @closeEditModal="showEditModal = false"/>
+    <ViewBuildingModal v-if="showBuildingModal" :buildingId="buildingId" @closeBuildingModal="showBuildingModal = false"/>
   </template>
   
   <script>
   import ViewBuildingModal from './ViewBuildingModal.vue';
-  import ConfirmDeleteModal from './ConfirmDeleteModal.vue';
-  import EditBuildingModal from './EditBuildingModal.vue'
 
   export default {
     components: {
       ViewBuildingModal,
-      ConfirmDeleteModal,
-      EditBuildingModal
     },
     props: {
-      buildingNumber: {
+      buildingId: {
         type: Number,
         required: true,
       },
-      floorsCount: {
+      apartmentsCount: {
         type: Number,
         required: true,
       },
@@ -47,20 +35,12 @@
     data() {
     return {
       showBuildingModal: false,
-      showDeleteModal: false,
-      showEditModal: false,
     };
   },
     methods: {
       viewBuilding() {
         this.showBuildingModal = true;
-      },
-      editBuilding() {
-        this.showEditModal = true;
-      },
-      deleteBuilding() {
-        this.showDeleteModal = true;
-      },
+      }
     },
   };
   </script>

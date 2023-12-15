@@ -1,20 +1,24 @@
 <template>
     <div :class="`alert-message ${type}`">
-      <p>{{ message }}</p>
-      <button @click="$emit('close')">X</button>
+      <div class="building-number"> Building {{ buildingId }}</div>
+      <div class="message">{{ message }}</div>
     </div>
   </template>
   
   <script>
   export default {
     props: {
+      buildingId: {
+        type: Number,
+        required: true
+      },
       message: {
         type: String,
         required: true
       },
       type: {
         type: String,
-        default: 'info' // 'info', 'warning', 'success'
+        default: 'error' // 'error', 'warning', 'success'
       }
     }
   };
@@ -22,25 +26,35 @@
   
   <style scoped>
   .alert-message {
-    padding: 10px;
+    padding: 10px 30px;
     border-radius: 5px;
     color: white;
-    position: relative;
+    font-weight: bold;
     margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .info {
+    background-color: #3b9fe2; 
   }
   
-  .info {
-    background-color: #5BC0DE; /* блакитний */
+  .error {
+    background-color: #e70e0e; 
   }
   
   .warning {
-    background-color: #F0AD4E; /* жовтий */
+    background-color: #f2ec38; 
   }
   
   .success {
-    background-color: #5CB85C; /* зелений */
+    background-color: #5CB85C; 
   }
   
+  .building-number
+  {
+    margin-right: 50px;
+  }
   .alert-message button {
     position: absolute;
     top: 0;
