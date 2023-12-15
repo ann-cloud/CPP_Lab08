@@ -8,14 +8,7 @@
         <button id="stopBtn" @click="stopSimulation">Stop</button>
       </div>
     </div>
-    <div class="simulation-info">
-      <div>
-        <p v-if="message">Received message: {{ message }}</p>
-      </div>
-      <AlertPopup />
-    </div>
   </div>
-  <SimulationInfo></SimulationInfo>
 </template>
 
 <script>
@@ -23,16 +16,11 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
 import markerIcon from '@/assets/img/location.png';
-import SimulationInfo from './SimulationInfo.vue';
-import AlertPopup from './AlertPopup.vue';
-import io from 'socket.io-client';
+import markerDetectedIcon from '@/assets/img/locationDetected.png';
+import { socketIO } from "../../socket";
 
 export default {
   name: "SimulationContent",
-  components: {
-    SimulationInfo,
-    AlertPopup
-  },
   data() {
     return {
       map: null,
@@ -44,21 +32,32 @@ export default {
   methods: {
     async getBuildingsOfUser() {
       try {
-        const userId = this.$store.getters.getUserId;
+        // const userId = this.$store.getters.getUserId;
 
-        if (userId !== undefined && !isNaN(userId) && userId != null) {
-          const promise = axios.get('http://localhost:8080/api/data/buildings/getBuildingsByUserId/' + userId,
-            {
-              headers: {
-                "Authorization": `Bearer ${this.$store.getters.getAccessToken}`
-              }
-            });
+        // if (userId !== undefined && !isNaN(userId) && userId != null) {
+        //   const promise = axios.get('http://localhost:8080/api/data/buildings/getBuildingsByUserId/' + userId,
+        //     {
+        //       headers: {
+        //         "Authorization": `Bearer ${this.$store.getters.getAccessToken}`
+        //       }
+        //     });
 
-          promise.then((response) => {
-            this.buildings = response.data;
-            this.updateMap();
+        //   promise.then((response) => {
+        //     this.buildings = response.data;
+        //     this.updateMap();
+        //   });
+
+        const promise = axios.get('http://localhost:8080/api/data/buildings',
+          {
+            headers: {
+              "Authorization": `Bearer ${this.$store.getters.getAccessToken}`
+            }
           });
-        }
+
+        promise.then((response) => {
+          this.buildings = response.data;
+          this.updateMap();
+        });
       } catch (error) {
         alert('Building fetch failed!');
         console.error('Error fetching buildings:', error.response.data.message);
@@ -73,8 +72,12 @@ export default {
       }
     },
     async startSimulation() {
+
       try {
         const userId = this.$store.getters.getUserId;
+        const token = this.$store.getters.getAccessToken;
+
+        console.log(userId, token);
 
         if (userId !== undefined && !isNaN(userId) && userId != null) {
           const promise = axios.post('http://localhost:8080/api/data/simulation',
@@ -85,8 +88,28 @@ export default {
               }
             });
 
-          promise.then((response) => {
-            alert(response.data);
+          promise.then(() => {
+
+            console.log('try socket');
+
+            var socket = socketIO("http://localhost:4004", {
+              headers:
+              {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET,PUT,POST,DELETE,PATCH,OPTIONS',
+                "Authorization": `Bearer ${this.$store.getters.getAccessToken}`
+              }
+            });
+
+            socket.io.on('connect', () => {
+              console.log('Connected to server');
+              socket.emit('request_data');
+            });
+
+
+            socket.io.on('data', (jsonData) => {
+              console.log('Received JSON data:', jsonData);
+            });
           })
         }
       } catch (error) {
@@ -145,16 +168,10 @@ export default {
         const userId = this.$store.getters.getUserId;
 
         if (userId !== undefined && !isNaN(userId) && userId != null) {
-          const promise = axios.patch('http://localhost:8080/api/data/simulation/stop',
-            {
-              headers:
-              {
-                "Authorization": `Bearer ${this.$store.getters.getAccessToken}`
-              }
-            });
+          const promise = axios.patch('http://localhost:8080/api/data/simulation/stop');
 
           promise.then((response) => {
-            alert(response.data);
+            console.log(response);
           })
         }
       } catch (error) {
@@ -169,45 +186,49 @@ export default {
         }
       });
 
-      const locationIcon = L.icon({
-        iconUrl: markerIcon,
-        iconSize: [32, 32],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32],
-      });
+      let isViolationDetectedInBuilding = this.buildings.forEach(building =>
+        building.apartments.forEach(apartment =>
+          apartment.floors.forEach(floor =>
+            floor.rooms.some(room => room.sensorsForRoom.isViolationDetected)
+          )
+        )
+      );
+
+      console.log(isViolationDetectedInBuilding);
+
+      let locationIcon;
+
+      if (isViolationDetectedInBuilding == true) {
+        locationIcon = L.icon({
+          iconUrl: markerDetectedIcon,
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -32],
+        });
+      }
+      else {
+        locationIcon = L.icon({
+          iconUrl: markerIcon,
+          iconSize: [32, 32],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -32],
+        });
+      }
 
       this.buildings.forEach(building => {
         L.marker([building.coordinateX, building.coordinateY], { icon: locationIcon })
           .addTo(this.map)
-          .bindPopup(`<b>Building ${building.id}</b><br>${building.address}`);
+          .bindPopup(`<b>Building ${building.id}</b><br>${building.coordinateX, building.coordinateY}`);
       });
     },
   },
   mounted() {
+    this.getBuildingsOfUser();
 
     this.map = L.map('map').setView([0, 0], 2);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
-
-    this.getBuildingsOfUser();
-    const socket = io('http://localhost:4004');
-
-    socket.on('info', (data) => {
-      this.message = data;
-    });
-
-    socket.on('connect', () => {
-      console.log('Connected to server');
-    });
-
-    socket.on('disconnect', () => {
-      console.log('Disconnected from server');
-    });
-
-    socket.on('error', (error) => {
-      console.error('Socket error:', error);
-    });
   },
 };
 </script>
